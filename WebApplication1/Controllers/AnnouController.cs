@@ -6,6 +6,7 @@ using System.Data.SqlClient;
 using System.Text;
 using System.IO;
 using System.Text.Json;
+using AnnouncmentSite;
 
 namespace WebApplication1.Controllers
 {
@@ -68,7 +69,7 @@ namespace WebApplication1.Controllers
         [HttpGet("photo")]
         public FileStream Get([FromQuery] int id)
         {
-
+            
             var sciezka = "";
             string connection = "Data Source=.\\sqlexpress;Initial Catalog=baza;Integrated Security=True";
             using (SqlConnection conn = new SqlConnection(connection))
@@ -85,15 +86,21 @@ namespace WebApplication1.Controllers
                             sciezka = reader.GetString(0);
                         }
 
-
+                        reader.Close();
 
                     }
 
                 }
+                conn.Close();
             }
-            var file = new FileStream(sciezka, FileMode.Open);
 
-            return file;
+
+           
+            FileStream file = new FileStream(sciezka, FileMode.Open);
+            var result = file;
+
+            return result;
+            
         }
 
 
@@ -161,6 +168,89 @@ namespace WebApplication1.Controllers
             return Ok("File is uploaded successfully"+title);
         }
 
-        
+        [HttpGet("help")]
+        public Announcement get2()
+        {
+            var result=new Announcement();
+            string connection = "Data Source=.\\sqlexpress;Initial Catalog=baza;Integrated Security=True";
+            using (SqlConnection conn = new SqlConnection(connection))
+            {
+                conn.Open();
+                string sql = "select * from help";
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                {
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+
+                        while (reader.Read())
+                        {
+                            var annou = new Announcement();
+                            annou.id = reader.GetInt32(0);
+                            annou.category = reader.GetString(1);
+                            annou.price = reader.GetDouble(2);
+                            annou.title = reader.GetString(3);
+                            annou.description = reader.GetString(4);
+                            annou.author = reader.GetString(5);
+                            annou.photo = reader.GetString(6);
+                            result = annou;
+
+                        }
+                    }
+
+
+                }
+
+            }
+            return result;
+
+
+        }
+        [HttpPost("help")]
+
+        public async Task<IActionResult> Addhelp(int id,string file, [FromQuery] string category, [FromQuery] double price, [FromQuery] string title, [FromQuery] string description, [FromQuery] string author)
+        {
+
+
+
+            //var filePath = Path.Combine(Directory.GetCurrentDirectory(), "uploads\\", file.FileName);
+
+            //using (var stream = new FileStream(filePath, FileMode.Create))
+            //{
+            //    await file.CopyToAsync(stream);
+            //}
+
+
+
+
+
+
+            string connection = "Data Source=.\\sqlexpress;Initial Catalog=baza;Integrated Security=True";
+            using (SqlConnection conn = new SqlConnection(connection))
+            {
+                conn.Open();
+                var sql = $"UPDATE help SET  id={id}, category='{category}',price={price},title='{title}',description='{description}',author='{author}',photo='{file}'";
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                {
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+
+                        }
+
+                    }
+                }
+            }
+
+
+
+
+
+
+            return Ok("Og³oszenie dodane prawid³owe");
+        }
+
     }
 }
