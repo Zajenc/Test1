@@ -1,0 +1,1 @@
+﻿insert into announcment(category,price, title, description,author,photo) values ('pojazdy',2200,'Sejak','Super woz','Ksiek','test')

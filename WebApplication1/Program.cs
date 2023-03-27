@@ -13,9 +13,16 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddMvc();
 builder.Services.AddCors();
-
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(
+    options =>
+    {
+        options.IdleTimeout=TimeSpan.FromSeconds(5);
+    }
+    
+    );
 var app = builder.Build();
-
+app.UseSession();
 app.UseCors(options => options.WithOrigins("*").AllowAnyMethod());
 app.UseResponseCaching();
 

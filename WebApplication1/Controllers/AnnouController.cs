@@ -6,13 +6,14 @@ using System.Data.SqlClient;
 using System.Text;
 using System.IO;
 using System.Text.Json;
-using AnnouncmentSite;
+using System.Web;
+
 
 namespace WebApplication1.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-
+    
     public class AnnouController : ControllerBase
     {
 
@@ -27,16 +28,16 @@ namespace WebApplication1.Controllers
 
         public ArrayList list_of_annou = new ArrayList();
         [HttpGet]
-        public ArrayList Get([FromQuery] string category)
+        public IEnumerable Get([FromQuery] string category)
         {
-            string connection = "Data Source=.\\sqlexpress;Initial Catalog=baza;Integrated Security=True";
+            string connection = "Data Source=.\\sqlexpress;Integrated Security=True";
             using (SqlConnection conn = new SqlConnection(connection))
             {
                 conn.Open();
-                string sql = "select * from announcement where category='" + category + "'";
+                string sql = "select * from announcment where category='" + category + "'";
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
                 {
-
+                    
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
 
@@ -69,13 +70,13 @@ namespace WebApplication1.Controllers
         [HttpGet("photo")]
         public FileStream Get([FromQuery] int id)
         {
-            
+
             var sciezka = "";
-            string connection = "Data Source=.\\sqlexpress;Initial Catalog=baza;Integrated Security=True";
+            string connection = "Data Source=.\\sqlexpress;Integrated Security=True";
             using (SqlConnection conn = new SqlConnection(connection))
             {
                 conn.Open();
-                string sql = "select photo from announcement where id=" + id;
+                string sql = "select photo from announcment where id=" + id;
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
                 {
 
@@ -86,21 +87,15 @@ namespace WebApplication1.Controllers
                             sciezka = reader.GetString(0);
                         }
 
-                        reader.Close();
+
 
                     }
 
                 }
-                conn.Close();
             }
+            var file = new FileStream(sciezka, FileMode.Open);
 
-
-           
-            FileStream file = new FileStream(sciezka, FileMode.Open);
-            var result = file;
-
-            return result;
-            
+            return file;
         }
 
 
@@ -123,11 +118,11 @@ namespace WebApplication1.Controllers
 
 
 
-            string connection = "Data Source=.\\sqlexpress;Initial Catalog=baza;Integrated Security=True";
+            string connection = "Data Source=.\\sqlexpress;Integrated Security=True";
             using (SqlConnection conn = new SqlConnection(connection))
             {
                 conn.Open();
-                var sql = $"INSERT INTO announcement (category, price, title, description, author, photo) values ('{category}',{price},'{title}','{description}','{author}','{filePath}')";
+                var sql = $"INSERT INTO announcment (category, price, title, description, author, photo) values ('{category}',{price},'{title}','{description}','{author}','{filePath}')";
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
                 {
 
@@ -168,11 +163,12 @@ namespace WebApplication1.Controllers
             return Ok("File is uploaded successfully"+title);
         }
 
+
         [HttpGet("help")]
         public Announcement get2()
         {
-            var result=new Announcement();
-            string connection = "Data Source=.\\sqlexpress;Initial Catalog=baza;Integrated Security=True";
+            var result = new Announcement();
+            string connection = "Data Source=.\\sqlexpress;Integrated Security=True";
             using (SqlConnection conn = new SqlConnection(connection))
             {
                 conn.Open();
@@ -208,7 +204,7 @@ namespace WebApplication1.Controllers
         }
         [HttpPost("help")]
 
-        public async Task<IActionResult> Addhelp(int id,string file, [FromQuery] string category, [FromQuery] double price, [FromQuery] string title, [FromQuery] string description, [FromQuery] string author)
+        public async Task<IActionResult> Addhelp(int id, string file, [FromQuery] string category, [FromQuery] double price, [FromQuery] string title, [FromQuery] string description, [FromQuery] string author)
         {
 
 
@@ -225,7 +221,7 @@ namespace WebApplication1.Controllers
 
 
 
-            string connection = "Data Source=.\\sqlexpress;Initial Catalog=baza;Integrated Security=True";
+            string connection = "Data Source=.\\sqlexpress;Integrated Security=True";
             using (SqlConnection conn = new SqlConnection(connection))
             {
                 conn.Open();
